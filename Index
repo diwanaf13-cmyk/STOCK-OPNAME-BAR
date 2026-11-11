@@ -1,0 +1,340 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stock Opname Gelas Bar</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 16px;
+  background: #f1f4f9;
+  font-family: Arial, sans-serif;
+  color: #222;
+}
+
+.container {
+  max-width: 600px;
+  margin: auto;
+}
+
+.header {
+  background: #172554;
+  color: white;
+  padding: 22px;
+  border-radius: 15px;
+  margin-bottom: 16px;
+}
+
+.header h2 {
+  margin: 0 0 8px;
+}
+
+.header p {
+  margin: 0;
+  font-size: 13px;
+  color: #dbeafe;
+}
+
+.card {
+  background: white;
+  padding: 17px;
+  border-radius: 13px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px #0000000d;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 7px;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 16px;
+  margin-bottom: 14px;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.item-name {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.item small {
+  color: #777;
+}
+
+.item input {
+  width: 85px;
+  margin: 0;
+  text-align: center;
+  font-weight: bold;
+}
+
+.total {
+  background: #eff6ff;
+  padding: 17px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+button {
+  width: 100%;
+  border: none;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.save {
+  background: #16a34a;
+  color: white;
+  margin-top: 15px;
+}
+
+.history {
+  background: #172554;
+  color: white;
+  margin-top: 10px;
+}
+
+.status {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.history-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+}
+
+.hidden {
+  display: none;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="header">
+  <h2>STOCK OPNAME GELAS BAR</h2>
+  <p>Penghitungan persediaan gelas bar</p>
+  <p>Senin, 9 November 2026</p>
+</div>
+
+<div class="card">
+  <label>Nama Petugas</label>
+  <input id="petugas" placeholder="Masukkan nama petugas">
+
+  <label>Tanggal Opname</label>
+  <input id="tanggal" type="date" value="2026-11-09">
+</div>
+
+<div class="card">
+  <h3>Daftar Gelas</h3>
+  <div id="daftar"></div>
+</div>
+
+<div class="card">
+  <div class="total">
+    <span>TOTAL GELAS</span>
+    <span id="total">234</span>
+  </div>
+
+  <button class="save" onclick="simpan()">
+    SIMPAN STOCK OPNAME
+  </button>
+
+  <div class="status" id="status"></div>
+</div>
+
+<div class="card">
+  <h3>Riwayat Opname</h3>
+  <button class="history" onclick="muatRiwayat()">
+    LIHAT RIWAYAT
+  </button>
+  <div id="riwayat"></div>
+</div>
+
+</div>
+
+<script>
+const barang = [
+  {nama:"Gelas Bland", stok:51},
+  {nama:"Gelas Kopi Ice", stok:13},
+  {nama:"Gelas Kopi Hot", stok:23},
+  {nama:"Gelas Panjang Hot", stok:10},
+  {nama:"Gelas Gagang", stok:42},
+  {nama:"Gelas Kopasus", stok:13},
+  {nama:"Gelas Matcha", stok:29},
+  {nama:"Gelas Melamin", stok:53}
+];
+
+function tampilkanBarang() {
+  const daftar = document.getElementById("daftar");
+  daftar.innerHTML = "";
+
+  barang.forEach((item, i) => {
+    daftar.innerHTML += `
+      <div class="item">
+        <div>
+          <div class="item-name">${item.nama}</div>
+          <small>Stok fisik (pcs)</small>
+        </div>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          value="${item.stok}"
+          id="stok${i}"
+          oninput="hitungTotal()"
+        >
+      </div>
+    `;
+  });
+
+  hitungTotal();
+}
+
+function hitungTotal() {
+  let total = 0;
+
+  barang.forEach((item, i) => {
+    const nilai = Number(
+      document.getElementById("stok" + i).value
+    );
+
+    if (Number.isFinite(nilai) && nilai >= 0) {
+      total += nilai;
+    }
+  });
+
+  document.getElementById("total").textContent = total;
+}
+
+function simpan() {
+  const petugas = document.getElementById("petugas").value.trim();
+  const tanggal = document.getElementById("tanggal").value;
+
+  if (!petugas) {
+    alert("Masukkan nama petugas!");
+    return;
+  }
+
+  if (!tanggal) {
+    alert("Pilih tanggal opname!");
+    return;
+  }
+
+  const data = barang.map((item, i) => {
+    const nilai = document.getElementById("stok" + i).value;
+
+    return {
+      nama: item.nama,
+      stok: nilai
+    };
+  });
+
+  if (data.some(x => x.stok === "" ||
+      !Number.isInteger(Number(x.stok)) ||
+      Number(x.stok) < 0)) {
+    alert("Jumlah stok harus berupa bilangan bulat minimal 0!");
+    return;
+  }
+
+  const tombol = document.querySelector(".save");
+  tombol.disabled = true;
+  tombol.textContent = "MENYIMPAN...";
+
+  google.script.run
+    .withSuccessHandler(function(pesan) {
+      document.getElementById("status").textContent = pesan;
+      document.getElementById("status").style.color = "green";
+      tombol.disabled = false;
+      tombol.textContent = "SIMPAN STOCK OPNAME";
+      muatRiwayat();
+    })
+    .withFailureHandler(function(error) {
+      document.getElementById("status").textContent =
+        "Gagal menyimpan: " + error.message;
+      document.getElementById("status").style.color = "red";
+      tombol.disabled = false;
+      tombol.textContent = "SIMPAN STOCK OPNAME";
+    })
+    .simpanOpnameGelas({
+      tanggal: tanggal,
+      petugas: petugas,
+      barang: data
+    });
+}
+
+function muatRiwayat() {
+  const area = document.getElementById("riwayat");
+  area.textContent = "Memuat riwayat...";
+
+  google.script.run
+    .withSuccessHandler(function(data) {
+      area.innerHTML = "";
+
+      if (!data.length) {
+        area.textContent = "Belum ada riwayat.";
+        return;
+      }
+
+      data.forEach(x => {
+        const div = document.createElement("div");
+        div.className = "history-item";
+
+        const judul = document.createElement("b");
+        judul.textContent = x.tanggal + " - " + x.petugas;
+
+        const rincian = document.createElement("div");
+        rincian.textContent = x.nama + ": " + x.stok + " pcs";
+
+        div.append(judul, rincian);
+        area.appendChild(div);
+      });
+    })
+    .withFailureHandler(function(error) {
+      area.textContent = "Gagal memuat: " + error.message;
+    })
+    .getDataOpnameGelas();
+}
+
+tampilkanBarang();
+</script>
+</body>
+</html>
